@@ -8,8 +8,8 @@ require_once 'settings.php';
  * and parse it to csv. 
 */
 if(!file_exists($csvPath)){
-    //$xml_src = file_get_contents($get_orders);
-    $xml_src = file_get_contents("test.xml");
+    $xml_src = file_get_contents($get_orders);
+    //$xml_src = file_get_contents("test.xml");
     $xml = new SimpleXMLElement($xml_src);
     $csv = generateCSV($xml); 
 
@@ -76,6 +76,7 @@ function generateCSV($xml){
 
             $csv .= $xml->orders[0]->order[$i]->client[0]->phone[0].";"; //Client phone
             $csv .= $xml->orders[0]->order[$i]->payment[0]; //Client payment type
+            $csv .= $xml->orders[0]->order[$i]->shipping[0]; //Client shipping costs
         }
     }
     
@@ -96,7 +97,7 @@ function generateCSVHeadline(){
             . "DeliveryZIP;DeliveryCity;DeliveryCountry;"
             . "InvoiceClient;InvoiceClient2;InvoiceStreet;"
             . "InvoiceZIP;InvoiceCity;InvoiceCountry;"
-            . "Phone;PaymentType";
+            . "Phone;PaymentType;Shipping";
     return $csv_headline;
 }
 
