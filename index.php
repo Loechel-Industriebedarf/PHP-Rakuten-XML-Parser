@@ -8,8 +8,8 @@ require_once 'settings.php';
  * and parse it to csv. 
 */
 if(!file_exists($csvPath)){
-    $xml_src = file_get_contents($get_orders);
-    //$xml_src = file_get_contents("test.xml");
+    //$xml_src = file_get_contents($get_orders);
+    $xml_src = file_get_contents("test.xml");
     $xml = new SimpleXMLElement($xml_src);
     $csv = generateCSV($xml); 
 
@@ -17,7 +17,9 @@ if(!file_exists($csvPath)){
 
     writeDate($datePath);
 }
-
+else{
+	echo "CSV file was not processed yet!";
+}
 
 
 
@@ -43,10 +45,13 @@ function generateCSV($xml){
             $csv .= $xml->orders[0]->order[$i]->created[0].";"; //Order date
             $csv .= $xml->orders[0]->order[$i]->client[0]->email[0].";"; //Order date
 
-            //TODO Check for multiple items ordered
-            $csv .= $xml->orders[0]->order[$i]->items[0]->item[$j]->product_art_no[0].";"; //Article number
-            $csv .= $xml->orders[0]->order[$i]->items[0]->item[$j]->qty[0].";"; //Article quantity
-            $csv .= $xml->orders[0]->order[$i]->items[0]->item[$j]->price[0].";"; //Article price
+		  
+            $csv .= $xml->orders[0]->order[$i]->items[0]->item[$j]->product_art_no[0].";"; //Article number	  
+		  $productQuantity = packcheck($xml->orders[0]->order[$i]->items[0]->item[$j]->name[0]);
+		  $articleQuantity = intval($xml->orders[0]->order[$i]->items[0]->item[$j]->qty[0]) * $productQuantity;
+            $csv .= $articleQuantity.";"; //Article quantity
+		  $articlePrice = doubleval($xml->orders[0]->order[$i]->items[0]->item[$j]->price[0]) / doubleval($productQuantity);
+            $csv .= $articlePrice.";"; //Article price
 
             $company = $xml->orders[0]->order[$i]->delivery_address[0]->company[0];
             $name = $xml->orders[0]->order[$i]->delivery_address[0]->first_name[0] . " "
@@ -75,7 +80,7 @@ function generateCSV($xml){
             $csv .= $xml->orders[0]->order[$i]->client[0]->country[0].";"; //Invoice country code
 
             $csv .= $xml->orders[0]->order[$i]->client[0]->phone[0].";"; //Client phone
-            $csv .= $xml->orders[0]->order[$i]->payment[0]; //Client payment type
+            $csv .= $xml->orders[0]->order[$i]->payment[0].";"; //Client payment type
             $csv .= $xml->orders[0]->order[$i]->shipping[0]; //Client shipping costs
         }
     }
@@ -115,7 +120,7 @@ function writeDate($datePath){
 /*
  * Creates a csv file from a string.
  * 
- * @input string    $csv    Csv content, that should be written to a file
+ * @input string    $csv    Csv content, that should be written to a file.
 */
 function writeCsv($csv, $csvPath){
     echo $csv;
@@ -123,4 +128,26 @@ function writeCsv($csv, $csvPath){
     $fp = fopen($csvPath, 'w');
     fwrite($fp, $csv);
     fclose($fp);
+}
+
+
+/*
+ * Checks, if it is a pack article.
+ * 
+ * @input string    $title    Product name, that could include "er pack".
+ * @return string	$strpostitle	Number of items purchased.
+*/
+function packcheck($title){
+	if(strpos(strtolower($title), 'er pack')){
+		$strpostitle = substr($title,0,strpos(strtolower($title),"er pack")); //Cut everything after "er Pack"
+		$lastspace = strrpos($strpostitle, ' '); //Search for last space
+		if($lastspace > 0){
+			$strpostitle = substr($strpostitle, $lastspace, strlen($strpostitle)); //Cut everything before last space
+		}	
+		
+		return intval($strpostitle);
+	}
+	else{
+		return 1;
+	}
 }
