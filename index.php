@@ -46,14 +46,14 @@ function generateCSV($xml, $lastDate){
         for($j = 0; isset($xml->orders[0]->order[$i]->items[0]->item[$j]->product_art_no[0]); $j++){
 		   $orderDate = date_create($xml->orders[0]->order[$i]->created[0]);
 		   $interval = date_diff($orderDate, $lastDate);
-		   echo "LAST DATE: " . $lastDate->format('Y-m-d H:i:s'). "\r\n" .
-		   "ORDER DATE: " . $orderDate->format('Y-m-d H:i:s'). "\r\n" .
-		   $interval->format('%h hours %i minutes') . "\r\n" ;
+		   echo "LAST DATE: " . $lastDate->format('Y-m-d H:i:s'). "<br>".
+		   "ORDER DATE: " . $orderDate->format('Y-m-d H:i:s'). "<br>" .
+		   $interval->format('%h hours %i minutes') . "<br>";
 		   if($orderDate > $lastDate){
 			  $csv .= "\r\n";
 			  $csv .= $xml->orders[0]->order[$i]->order_no[0].";"; //Order number
 			  $csv .= $xml->orders[0]->order[$i]->created[0].";"; //Order date
-			  $csv .= $xml->orders[0]->order[$i]->created[0].";"; //Order date
+			  $csv .= $xml->orders[0]->order[$i]->client[0]->email[0].";"; //Order mail
 
 			  
 			  $csv .= $xml->orders[0]->order[$i]->items[0]->item[$j]->product_art_no[0].";"; //Article number	  
