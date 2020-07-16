@@ -5,7 +5,7 @@
  */
 
 $api_base = "http://webservice.rakuten.de/merchants/";
-$api_key = "8b4733b12cb2d7d194ff35d4fbc40a1e";
+$api_key = "XXXXX";
 
 $csvPath = "..\order.csv";
 $datePath = "date.txt";
